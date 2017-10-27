@@ -6,17 +6,11 @@ import android.support.design.widget.AppBarLayout;
 import android.view.View;
 
 import com.fastaccess.App;
-import com.fastaccess.BuildConfig;
 import com.fastaccess.R;
 import com.fastaccess.helper.AnimHelper;
-import com.fastaccess.helper.AppHelper;
-import com.fastaccess.helper.InputHelper;
 import com.fastaccess.ui.base.BaseActivity;
 import com.fastaccess.ui.base.mvp.presenter.BasePresenter;
 import com.fastaccess.ui.modules.main.premium.PremiumActivity;
-import com.miguelbcr.io.rx_billing_service.RxBillingService;
-import com.miguelbcr.io.rx_billing_service.entities.ProductType;
-import com.miguelbcr.io.rx_billing_service.entities.Purchase;
 
 import net.grandcentrix.thirtyinch.TiPresenter;
 
@@ -78,25 +72,11 @@ public class DonationActivity extends BaseActivity {
     }
 
     private void onProceed(@NonNull String productKey) {
-        if (AppHelper.isGoogleAvailable(this)) {
-            DonateActivity.Companion.start(this, productKey);
-        } else {
-            showErrorMessage(getString(R.string.google_play_service_error));
-        }
+        DonateActivity.Companion.start(this, productKey);
     }
 
     private void checkPurchase() {
-        ((BasePresenter) getPresenter()).manageViewDisposable(RxBillingService.getInstance(this, BuildConfig.DEBUG)
-                .getPurchases(ProductType.IN_APP)
-                .subscribe((purchases, throwable) -> {
-                    if (purchases != null && !purchases.isEmpty()) {
-                        for (Purchase purchase : purchases) {
-                            String sku = purchase.sku();
-                            if (!InputHelper.isEmpty(sku)) {
-                                DonateActivity.Companion.enableProduct(sku, App.getInstance());
-                            }
-                        }
-                    }
-                }));
+        String sku = getString(R.string.fasthub_all_features_purchase);
+        DonateActivity.Companion.enableProduct(sku, App.getInstance());
     }
 }

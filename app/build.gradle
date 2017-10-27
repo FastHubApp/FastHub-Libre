@@ -4,24 +4,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.novoda.build-properties'
 apply plugin: 'jacoco-android'
 
-buildProperties {
-    notThere {
-        file rootProject.file('debug_gradle.properties')
-    }
-    secrets {
-        file rootProject.file('gradle.properties')
-    }
-}
-
 android {
-    signingConfigs {
-        signing {
-            keyAlias((buildProperties.secrets['android_key_alias'] | buildProperties.notThere['android_key_alias']).string)
-            keyPassword((buildProperties.secrets['android_store_password'] | buildProperties.notThere['android_store_password']).string)
-            storeFile file('fastaccess-public')
-            storePassword((buildProperties.secrets['android_store_password'] | buildProperties.notThere['android_store_password']).string)
-        }
-    }
     compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
@@ -30,10 +13,6 @@ android {
         targetSdkVersion 26
         versionCode 450
         versionName "4.5.0"
-        buildConfigString "GITHUB_CLIENT_ID", (buildProperties.secrets['github_client_id'] | buildProperties.notThere['github_client_id']).string
-        buildConfigString "GITHUB_SECRET", (buildProperties.secrets['github_secret'] | buildProperties.notThere['github_secret']).string
-        buildConfigString "IMGUR_CLIENT_ID", (buildProperties.secrets['imgur_client_id'] | buildProperties.notThere['imgur_client_id']).string
-        buildConfigString "IMGUR_SECRET", (buildProperties.secrets['imgur_secret'] | buildProperties.notThere['imgur_secret']).string
         buildConfigField "String", "REST_URL", '"https://api.github.com/"'
         buildConfigField "String", "IMGUR_URL", '"https://api.imgur.com/3/"'
         multiDexEnabled true
@@ -49,13 +28,9 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            signingConfig signingConfigs.signing
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            if (!rootProject.file('gradle.properties').exists()) {
-                signingConfig signingConfigs.signing
-            }
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
             ext.alwaysUpdateBuildId = false
@@ -150,7 +125,6 @@ dependencies {
     implementation "com.atlassian.commonmark:commonmark-ext-gfm-tables:${commonmark}"
     implementation "com.atlassian.commonmark:commonmark-ext-ins:${commonmark}"
     implementation "com.atlassian.commonmark:commonmark-ext-yaml-front-matter:${commonmark}"
-    implementation "com.github.miguelbcr:RxBillingService:0.0.3"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlin_version}"
     implementation 'org.jsoup:jsoup:1.10.3'
     implementation "com.evernote:android-state:${state_version}"

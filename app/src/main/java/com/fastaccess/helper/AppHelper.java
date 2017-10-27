@@ -18,10 +18,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.fastaccess.App;
-import com.fastaccess.BuildConfig;
 import com.fastaccess.R;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.Locale;
 
@@ -76,34 +73,6 @@ public class AppHelper {
         return themeType != PrefGetter.LIGHT;
     }
 
-    public static String getFastHubIssueTemplate(boolean enterprise) {
-        String brand = (!isEmulator()) ? Build.BRAND : "Android Emulator";
-        String model = (!isEmulator()) ? DeviceNameGetter.getInstance().getDeviceName() : "Android Emulator";
-        StringBuilder builder = new StringBuilder()
-                .append("**FastHub Version: ").append(BuildConfig.VERSION_NAME).append(enterprise ? " Enterprise**" : "**").append("  \n")
-                .append(!isInstalledFromPlaySore(App.getInstance()) ? "**APK Source: Unknown**  \n" : "")
-                .append("**Android Version: ").append(String.valueOf(Build.VERSION.RELEASE)).append(" (SDK: ")
-                .append(String.valueOf(Build.VERSION.SDK_INT)).append(")**").append("  \n")
-                .append("**Device Information:**").append("  \n")
-                .append("- **")
-                .append(!model.equalsIgnoreCase(brand) ? "Manufacturer" : "Manufacturer&Brand")
-                .append(":** ")
-                .append(Build.MANUFACTURER)
-                .append("  \n");
-        if (!(model.equalsIgnoreCase(brand) || "google".equals(Build.BRAND))) {
-            builder.append("- **Brand:** ").append(brand).append("  \n");
-        }
-        builder.append("- **Model:** ").append(model).append("  \n")
-                .append("---").append("\n\n");
-        if (!Locale.getDefault().getLanguage().equals(new Locale("en").getLanguage())) {
-            builder.append("<!--")
-                    .append(App.getInstance().getString(R.string.english_please))
-                    .append("-->")
-                    .append("\n");
-        }
-        return builder.toString();
-    }
-
     public static void updateAppLanguage(@NonNull Context context) {
         String lang = PrefGetter.getAppLanguage();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -148,37 +117,7 @@ public class AppHelper {
     }
 
     public static String getDeviceName() {
-        if (isEmulator()) {
-            return "Android Emulator";
-        }
         return DeviceNameGetter.getInstance().getDeviceName();
-    }
-
-    public static boolean isEmulator() {
-        return Build.FINGERPRINT.startsWith("generic")
-                || Build.FINGERPRINT.startsWith("unknown")
-                || Build.MODEL.contains("google_sdk")
-                || Build.MODEL.contains("Emulator")
-                || Build.MODEL.contains("Android SDK built for x86")
-                || Build.MANUFACTURER.contains("Genymotion")
-                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
-                || "google_sdk".equals(Build.PRODUCT);
-    }
-
-    private static boolean isInstalledFromPlaySore(@NonNull Context context) {
-        final String ipn = context.getPackageManager().getInstallerPackageName(BuildConfig.APPLICATION_ID);
-        return !InputHelper.isEmpty(ipn);
-    }
-
-    public static boolean isGoogleAvailable(@NonNull Context context) {
-        ApplicationInfo applicationInfo = null;
-        try {
-            applicationInfo = context.getPackageManager().getApplicationInfo("com.google.android.gms", 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return applicationInfo != null && applicationInfo.enabled &&
-                GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS;
     }
 
     public static boolean isDeviceAnimationEnabled(@NonNull Context context) {

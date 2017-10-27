@@ -17,8 +17,6 @@ import butterknife.Unbinder
 import com.fastaccess.R
 import com.fastaccess.helper.*
 import com.fastaccess.ui.base.BaseFragment
-import com.fastaccess.ui.modules.main.donation.DonateActivity
-import com.fastaccess.ui.modules.main.premium.PremiumActivity
 import com.fastaccess.ui.widgets.SpannableBuilder
 
 /**
@@ -118,30 +116,15 @@ class ThemeFragment : BaseFragment<ThemeFragmentMvp.View, ThemeFragmentPresenter
     }
 
     private fun applyBluishTheme() {
-        if (!isGoogleSupported()) return
-        if (PrefGetter.isBluishEnabled() || PrefGetter.isProEnabled()) {
-            setTheme(getString(R.string.bluish_theme))
-        } else {
-            DonateActivity.start(this, getString(R.string.theme_bluish_purchase))
-        }
+        setTheme(getString(R.string.bluish_theme))
     }
 
     private fun applyAmlodTheme() {
-        if (!isGoogleSupported()) return
-        if (PrefGetter.isAmlodEnabled() || PrefGetter.isProEnabled()) {
-            setTheme(getString(R.string.amlod_theme_mode))
-        } else {
-            DonateActivity.start(this, getString(R.string.amlod_theme_purchase))
-        }
+        setTheme(getString(R.string.amlod_theme_mode))
     }
 
     private fun applyMidnightTheme() {
-        if (!isGoogleSupported()) return
-        if (PrefGetter.isProEnabled() || PrefGetter.isAllFeaturesUnlocked()) {
-            setTheme(getString(R.string.mid_night_blue_theme_mode))
-        } else {
-            PremiumActivity.startActivity(context)
-        }
+        setTheme(getString(R.string.mid_night_blue_theme_mode))
     }
 
     private fun setTheme(theme: String) {
@@ -150,14 +133,6 @@ class ThemeFragment : BaseFragment<ThemeFragmentMvp.View, ThemeFragmentPresenter
     }
 
     private fun isPremiumTheme(): Boolean = theme != R.style.ThemeLight && theme != R.style.ThemeDark
-
-    private fun isGoogleSupported(): Boolean {
-        if (AppHelper.isGoogleAvailable(context)) {
-            return true
-        }
-        showErrorMessage(getString(R.string.common_google_play_services_unsupported_text))
-        return false
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()

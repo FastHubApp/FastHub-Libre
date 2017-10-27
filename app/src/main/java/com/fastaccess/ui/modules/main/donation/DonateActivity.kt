@@ -5,18 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import com.fastaccess.BuildConfig
 import com.fastaccess.R
 import com.fastaccess.helper.*
-import com.fastaccess.provider.fabric.FabricProvider
 import com.fastaccess.ui.base.BaseActivity
 import com.fastaccess.ui.base.mvp.BaseMvp
 import com.fastaccess.ui.base.mvp.presenter.BasePresenter
-import com.miguelbcr.io.rx_billing_service.RxBillingService
-import com.miguelbcr.io.rx_billing_service.RxBillingServiceError
-import com.miguelbcr.io.rx_billing_service.RxBillingServiceException
-import com.miguelbcr.io.rx_billing_service.entities.ProductType
-import com.miguelbcr.io.rx_billing_service.entities.Purchase
 import io.reactivex.disposables.Disposable
 
 /**
@@ -39,36 +32,13 @@ class DonateActivity : BaseActivity<BaseMvp.FAView, BasePresenter<BaseMvp.FAView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val bundle: Bundle = intent.extras
-        val productKey: String = bundle.getString(BundleConstant.EXTRA)
-        subscription = RxHelper.getSingle<Purchase>(RxBillingService.getInstance(this, BuildConfig.DEBUG)
-                .purchase(ProductType.IN_APP, productKey, "inapp:com.fastaccess.github:" + productKey))
-                .subscribe({ p: Purchase?, throwable: Throwable? ->
-                    if (throwable == null) {
-                        FabricProvider.logPurchase(productKey)
-                        showMessage(R.string.success, R.string.success_purchase_message)
-                        enableProduct(productKey, applicationContext)
-                        val intent = Intent()
-                        intent.putExtra(BundleConstant.ITEM, productKey)
-                        setResult(Activity.RESULT_OK, intent)
-                    } else {
-                        if (throwable is RxBillingServiceException) {
-                            val code = throwable.code
-                            if (code == RxBillingServiceError.ITEM_ALREADY_OWNED) {
-                                enableProduct(productKey, applicationContext)
-                                val intent = Intent()
-                                intent.putExtra(BundleConstant.ITEM, productKey)
-                                setResult(Activity.RESULT_OK, intent)
-                            } else {
-                                showErrorMessage(throwable.message!!)
-                                Logger.e(code)
-                                setResult(Activity.RESULT_CANCELED)
-                            }
-                        }
-                        throwable.printStackTrace()
-                    }
-                    finish()
-                })
+        showMessage(R.string.success, R.string.success_purchase_message)
+        val sku = getString(R.string.fasthub_all_features_purchase)
+        enableProduct(sku, applicationContext)
+        val intent = Intent()
+        intent.putExtra(BundleConstant.ITEM, sku)
+        setResult(Activity.RESULT_OK, intent)
+        finish()
     }
 
     override fun onDestroy() {

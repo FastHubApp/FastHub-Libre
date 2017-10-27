@@ -70,7 +70,6 @@ public class CreateIssueActivity extends BaseActivity<CreateIssueMvp.View, Creat
     @State String login;
     @State Issue issue;
     @State PullRequest pullRequest;
-    @State boolean isFeedback;
     @State ArrayList<LabelModel> labelModels = new ArrayList<>();
     @State MilestoneModel milestoneModel;
     @State ArrayList<User> users = new ArrayList<>();
@@ -133,19 +132,19 @@ public class CreateIssueActivity extends BaseActivity<CreateIssueMvp.View, Creat
         }
     }
 
-    @NonNull public static Intent getIntent(@NonNull Context context, @NonNull String login, @NonNull String repoId, boolean isFeedback) {
+    @NonNull public static Intent getIntent(@NonNull Context context, @NonNull String login, @NonNull String repoId) {
         Intent intent = new Intent(context, CreateIssueActivity.class);
         intent.putExtras(Bundler.start()
                 .put(BundleConstant.EXTRA, login)
                 .put(BundleConstant.ID, repoId)
-                .put(BundleConstant.EXTRA_TWO, isFeedback)
+                .put(BundleConstant.EXTRA_TWO, false)
                 .end());
         return intent;
     }
 
     @NonNull public static Intent startForResult(@NonNull Activity activity) {
-        String login = "k0shk0sh"; // FIXME: 23/02/2017 hardcoded
-        String repoId = "FastHub";// FIXME: 23/02/2017 hardcoded
+        String login = "thermatk"; // FIXME: 23/02/2017 hardcoded
+        String repoId = "FastHub-Libre";// FIXME: 23/02/2017 hardcoded
         Intent intent = new Intent(activity, CreateIssueActivity.class);
         intent.putExtras(Bundler.start()
                 .put(BundleConstant.EXTRA, login)
@@ -233,7 +232,6 @@ public class CreateIssueActivity extends BaseActivity<CreateIssueMvp.View, Creat
             Bundle bundle = getIntent().getExtras();
             login = bundle.getString(BundleConstant.EXTRA);
             repoId = bundle.getString(BundleConstant.ID);
-            isFeedback = bundle.getBoolean(BundleConstant.EXTRA_TWO);
             if (bundle.getParcelable(BundleConstant.ITEM) != null) {
                 if (bundle.getParcelable(BundleConstant.ITEM) instanceof Issue) {
                     issue = bundle.getParcelable(BundleConstant.ITEM);
@@ -283,20 +281,19 @@ public class CreateIssueActivity extends BaseActivity<CreateIssueMvp.View, Creat
             }
         }
         getPresenter().checkAuthority(login, repoId);
-        if (isFeedback || ("k0shk0sh".equalsIgnoreCase(login) && repoId.equalsIgnoreCase("FastHub"))) {
+        if (("thermatk".equalsIgnoreCase(login) && repoId.equalsIgnoreCase("FastHub-Libre"))) {
             setTitle(R.string.submit_feedback);
             getPresenter().onCheckAppVersion();
         }
-        if (BuildConfig.DEBUG && isFeedback) {
+        if (BuildConfig.DEBUG) {
             alertDialog = new AlertDialog.Builder(this)
                     .setTitle("You are currently using a debug build")
-                    .setMessage("If you have found a bug, please report it on slack." + "\n" +
-                            "Feature requests can be submitted here." + "\n" + "Happy Testing")
+                    .setMessage("Happy Testing")
                     .setPositiveButton(android.R.string.ok, null)
                     .show();
         }
         if (toolbar != null) toolbar.setSubtitle(login + "/" + repoId);
-        setTaskName(login + "/" + repoId + " - " + (isFeedback ? getString(R.string.submit_feedback) : getString(R.string.create_issue)));
+        setTaskName(login + "/" + repoId + " - " + getString(R.string.create_issue));
     }
 
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -331,9 +328,6 @@ public class CreateIssueActivity extends BaseActivity<CreateIssueMvp.View, Creat
     }
 
     @OnTouch(R.id.description) boolean onTouch(MotionEvent event) {
-        if (isFeedback && InputHelper.isEmpty(savedText)) {
-            savedText = AppHelper.getFastHubIssueTemplate(isEnterprise());
-        }
         if (event.getAction() == MotionEvent.ACTION_UP) {
             Intent intent = new Intent(this, EditorActivity.class);
             intent.putExtras(Bundler.start()
